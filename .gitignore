@@ -19,3 +19,4 @@ public/build/
 .svelte-kit/
 .vite/
 *.local
+logs_result_frontend.json

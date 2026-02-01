@@ -18,8 +18,8 @@
  * - DELETE /tasks/:id on delete
  */
 
-import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, inject, ChangeDetectorRef, PLATFORM_ID } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { finalize } from 'rxjs/operators';
 import { TaskService } from '../../core/services/task.service';
@@ -36,6 +36,7 @@ export class TodayTasksComponent implements OnInit {
   /** Inject TaskService for API calls */
   private readonly taskService = inject(TaskService);
   private readonly cdr = inject(ChangeDetectorRef);
+  private readonly platformId = inject(PLATFORM_ID);
 
   /** All tasks fetched from API */
   tasks: Task[] = [];
@@ -50,7 +51,12 @@ export class TodayTasksComponent implements OnInit {
    * Lifecycle hook - fetch tasks on component init
    */
   ngOnInit(): void {
-    this.loadTasks();
+    if (isPlatformBrowser(this.platformId)) {
+      this.loadTasks();
+    } else {
+      // Don't fetch tasks on server/prerender
+      this.isLoading = false;
+    }
   }
 
   /**

@@ -17,5 +17,5 @@ export const environment = {
    * Change this to your deployed backend URL for production
    * Example: 'https://your-backend.onrender.com/api'
    */
-  API_URL: 'http://localhost:5000/api'
+  API_URL: (import.meta as any).env?.['API_URL'] || 'https://technician-planner.onrender.com/api'
 };
