@@ -1,0 +1,14 @@
+{
+  "name": "technician-planner",
+  "private": true,
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
+  "scripts": {
+    "start:dev": "npm run start:frontend & npm run start:backend",
+    "start:frontend": "npm run start --workspace=frontend",
+    "start:backend": "npm run dev --workspace=backend",
+    "install:all": "npm install"
+  }
+}
