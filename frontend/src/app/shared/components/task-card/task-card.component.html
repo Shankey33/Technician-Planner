@@ -1,0 +1,130 @@
+<!-- 
+  Task Card Template
+  
+  Displays a single task with:
+  - Checkbox for completion toggle
+  - Task details (customer, location, type, time)
+  - Status indicator
+  - Delete button
+  
+  Completed tasks have muted styling with gray background
+-->
+
+<div 
+  class="rounded-lg border p-4 mb-3 transition-all duration-200"
+  [class.bg-gray-100]="isCompleted"
+  [class.bg-white]="!isCompleted"
+  [class.border-gray-300]="isCompleted"
+  [class.border-gray-200]="!isCompleted"
+  [class.shadow-sm]="!isCompleted"
+>
+  <div class="flex items-start gap-3">
+    <!-- Completion Checkbox -->
+    <div class="pt-1">
+      <input
+        type="checkbox"
+        [checked]="isCompleted"
+        [disabled]="isCompleted"
+        (change)="handleComplete()"
+        class="w-5 h-5 rounded border-gray-300 text-green-600 focus:ring-green-500 cursor-pointer disabled:cursor-not-allowed"
+        [attr.aria-label]="'Mark task for ' + task.customerName + ' as complete'"
+      />
+    </div>
+    
+    <!-- Task Content -->
+    <div class="flex-1 min-w-0">
+      <!-- Customer Name & Status -->
+      <div class="flex items-center justify-between gap-2 mb-1">
+        <h3 
+          class="text-lg font-semibold truncate"
+          [class.text-gray-500]="isCompleted"
+          [class.line-through]="isCompleted"
+          [class.text-gray-900]="!isCompleted"
+        >
+          {{ task.customerName }}
+        </h3>
+        
+        <!-- Status Badge -->
+        <span 
+          class="shrink-0 px-2 py-1 text-xs font-medium rounded-full"
+          [class.bg-green-100]="isCompleted"
+          [class.text-green-800]="isCompleted"
+          [class.bg-orange-100]="!isCompleted"
+          [class.text-orange-800]="!isCompleted"
+        >
+          {{ task.status }}
+        </span>
+      </div>
+      
+      <!-- Location -->
+      <p 
+        class="text-sm mb-2 flex items-center gap-1"
+        [class.text-gray-400]="isCompleted"
+        [class.text-gray-600]="!isCompleted"
+      >
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+            d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+            d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+        </svg>
+        <span [class.line-through]="isCompleted">{{ task.location }}</span>
+      </p>
+      
+      <!-- Task Type & Time -->
+      <div class="flex flex-wrap items-center gap-2 text-sm">
+        <!-- Task Type Badge -->
+        <span 
+          class="px-2 py-0.5 rounded text-xs font-medium"
+          [class]="taskTypeBadgeClass"
+          [class.opacity-60]="isCompleted"
+        >
+          {{ task.taskType }}
+        </span>
+        
+        <!-- Scheduled Time -->
+        <span 
+          class="flex items-center gap-1"
+          [class.text-gray-400]="isCompleted"
+          [class.text-gray-500]="!isCompleted"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+              d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+          {{ formattedTime }}
+        </span>
+      </div>
+      
+      <!-- Notes (if present) -->
+      @if (task.notes) {
+        <p 
+          class="mt-2 text-sm italic"
+          [class.text-gray-400]="isCompleted"
+          [class.text-gray-500]="!isCompleted"
+        >
+          "{{ task.notes }}"
+        </p>
+      }
+      
+      <!-- Completion Time (if completed) -->
+      @if (isCompleted && task.completedAt) {
+        <p class="mt-2 text-xs text-green-600">
+          Completed at {{ task.completedAt | date:'short' }}
+        </p>
+      }
+    </div>
+    
+    <!-- Delete Button -->
+    <button
+      (click)="handleDelete()"
+      class="shrink-0 p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-colors"
+      aria-label="Delete task"
+    >
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+      </svg>
+    </button>
+  </div>
+</div>

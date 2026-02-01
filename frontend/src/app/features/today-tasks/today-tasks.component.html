@@ -1,0 +1,114 @@
+<!--
+  Today Tasks Page Template
+  
+  Displays:
+  1. Dashboard summary with task counts
+  2. Task list with cards
+  3. Loading/empty/error states
+  
+  Mobile-first responsive design using Tailwind CSS
+-->
+
+<div class="min-h-screen bg-gray-50 py-6 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-2xl mx-auto">
+    <!-- Page Header -->
+    <div class="flex items-center justify-between mb-6">
+      <div>
+        <h1 class="text-2xl font-bold text-gray-900">Today's Tasks</h1>
+        <p class="text-sm text-gray-600">{{ totalTasks }} tasks scheduled</p>
+      </div>
+      <a 
+        routerLink="/add-task"
+        class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
+      >
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+        </svg>
+        <span class="hidden sm:inline">Add Task</span>
+      </a>
+    </div>
+
+    <!-- Dashboard Summary Cards -->
+    <div class="grid grid-cols-3 gap-3 sm:gap-4 mb-6">
+      <!-- Total Tasks -->
+      <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 text-center">
+        <p class="text-3xl sm:text-4xl font-bold text-gray-900">{{ totalTasks }}</p>
+        <p class="text-xs sm:text-sm text-gray-600 mt-1">Total</p>
+      </div>
+      
+      <!-- Completed Tasks -->
+      <div class="bg-green-50 rounded-lg shadow-sm border border-green-200 p-4 text-center">
+        <p class="text-3xl sm:text-4xl font-bold text-green-600">{{ completedTasks }}</p>
+        <p class="text-xs sm:text-sm text-green-700 mt-1">Completed</p>
+      </div>
+      
+      <!-- Pending Tasks -->
+      <div class="bg-orange-50 rounded-lg shadow-sm border border-orange-200 p-4 text-center">
+        <p class="text-3xl sm:text-4xl font-bold text-orange-600">{{ pendingTasks }}</p>
+        <p class="text-xs sm:text-sm text-orange-700 mt-1">Pending</p>
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    @if (isLoading) {
+      <div class="flex flex-col items-center justify-center py-12">
+        <svg class="animate-spin h-10 w-10 text-blue-600 mb-4" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+        <p class="text-gray-600">Loading tasks...</p>
+      </div>
+    }
+
+    <!-- Error State -->
+    @if (errorMessage && !isLoading) {
+      <div class="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
+        <svg class="w-12 h-12 text-red-400 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+            d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        <p class="text-red-800 font-medium mb-2">{{ errorMessage }}</p>
+        <button 
+          (click)="loadTasks()"
+          class="text-sm text-red-600 hover:text-red-800 underline"
+        >
+          Try again
+        </button>
+      </div>
+    }
+
+    <!-- Empty State -->
+    @if (!isLoading && !errorMessage && !hasTasks) {
+      <div class="bg-white border border-gray-200 rounded-lg p-8 text-center">
+        <svg class="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" 
+            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
+        </svg>
+        <h3 class="text-lg font-medium text-gray-900 mb-1">No tasks for today</h3>
+        <p class="text-gray-500 mb-4">Get started by adding your first task</p>
+        <a 
+          routerLink="/add-task"
+          class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors"
+        >
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+          </svg>
+          Add Task
+        </a>
+      </div>
+    }
+
+    <!-- Task List -->
+    @if (!isLoading && !errorMessage && hasTasks) {
+      <div class="space-y-1">
+        @for (task of tasks; track task._id) {
+          <app-task-card 
+            [task]="task"
+            (onComplete)="onTaskComplete($event)"
+            (onDelete)="onTaskDelete($event)"
+          />
+        }
+      </div>
+    }
+  </div>
+</div>

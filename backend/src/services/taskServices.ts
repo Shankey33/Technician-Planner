@@ -1,4 +1,4 @@
-import Task, { type TaskDoc } from "./models/task.js";
+import Task, { type TaskDoc } from "../models/task.js";
 
 
 export const createNewTask = async (taskData: Partial<TaskDoc>): Promise<void> => {
