@@ -120,9 +120,9 @@ export class AddTaskComponent {
         this.successMessage = 'Task created successfully!';
         this.isLoading = false;
         
-        // Redirect to today's tasks after brief delay
+        // Redirect to home after brief delay
         setTimeout(() => {
-          this.router.navigate(['/today']);
+          this.router.navigate(['/home']);
         }, 1000);
       },
       error: (error: Error) => {

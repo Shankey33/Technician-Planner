@@ -19,7 +19,7 @@
  * - onDelete: Emits when delete button is clicked
  */
 
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import type { Task } from '../../../core/models/task.model';
 
@@ -27,7 +27,8 @@ import type { Task } from '../../../core/models/task.model';
   selector: 'app-task-card',
   standalone: true,
   imports: [CommonModule],
-  templateUrl: './task-card.component.html'
+  templateUrl: './task-card.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TaskCardComponent {
   /** The task to display */

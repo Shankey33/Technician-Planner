@@ -14,8 +14,8 @@
 
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { Observable, throwError } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { Observable, throwError, forkJoin, from, of } from 'rxjs';
+import { catchError, mergeMap, toArray } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import type { Task, CreateTaskDto, CompleteTaskDto, ApiMessageResponse } from '../models/task.model';
 
@@ -89,6 +89,24 @@ export class TaskService {
   deleteTask(taskId: string): Observable<ApiMessageResponse> {
     return this.http.delete<ApiMessageResponse>(`${this.apiUrl}/${taskId}`)
       .pipe(catchError(this.handleError));
+  }
+
+  /**
+   * Delete multiple tasks in parallel with concurrency limit
+   * Used for bulk deletion of completed tasks
+   * 
+   * @param taskIds - Array of task IDs to delete
+   * @returns Observable<ApiMessageResponse[]> - Array of responses
+   */
+  deleteMultipleTasks(taskIds: string[]): Observable<ApiMessageResponse[]> {
+    return from(taskIds).pipe(
+      // Limit concurrency to 3 requests at a time to prevent browser stalling
+      mergeMap(id => this.deleteTask(id).pipe(
+        // Catch individual errors so one failure doesn't stop the whole process
+        catchError(() => of({ message: `Failed to delete task ${id}` } as ApiMessageResponse))
+      ), 3),
+      toArray()
+    );
   }
 
   /**

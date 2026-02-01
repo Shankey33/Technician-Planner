@@ -18,9 +18,10 @@
  * - DELETE /tasks/:id on delete
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { finalize } from 'rxjs/operators';
 import { TaskService } from '../../core/services/task.service';
 import { TaskCardComponent } from '../../shared/components/task-card/task-card.component';
 import type { Task } from '../../core/models/task.model';
@@ -34,6 +35,7 @@ import type { Task } from '../../core/models/task.model';
 export class TodayTasksComponent implements OnInit {
   /** Inject TaskService for API calls */
   private readonly taskService = inject(TaskService);
+  private readonly cdr = inject(ChangeDetectorRef);
 
   /** All tasks fetched from API */
   tasks: Task[] = [];
@@ -57,16 +59,22 @@ export class TodayTasksComponent implements OnInit {
   loadTasks(): void {
     this.isLoading = true;
     this.errorMessage = '';
+    console.log('Loading tasks...');
 
+    // Force change detection updates
     this.taskService.getTodayTasks().subscribe({
-      next: (tasks) => {
-        this.tasks = this.sortTasks(tasks);
-        this.isLoading = false;
-      },
-      error: (error: Error) => {
-        this.errorMessage = error.message;
-        this.isLoading = false;
-      }
+        next: (tasks) => {
+          console.log('Tasks loaded:', tasks.length);
+          this.tasks = this.sortTasks(tasks);
+          this.isLoading = false;
+          this.cdr.detectChanges(); // Manually trigger update
+        },
+        error: (error: Error) => {
+          console.error('Error loading tasks:', error);
+          this.errorMessage = error.message;
+          this.isLoading = false;
+          this.cdr.detectChanges(); // Manually trigger update
+        }
     });
   }
 
@@ -94,21 +102,31 @@ export class TodayTasksComponent implements OnInit {
 
     this.taskService.completeTask(taskId, completedAt).subscribe({
       next: () => {
-        // Update local task state directly
+        // Find task index
         const index = this.tasks.findIndex(t => t._id === taskId);
         if (index !== -1) {
-          this.tasks[index] = {
+          // Create new task object with updated status
+          const updatedTask: Task = {
             ...this.tasks[index],
             status: 'Completed',
             completedAt
           };
-          // Re-sort to move completed task to bottom
-          this.tasks = this.sortTasks(this.tasks);
+          
+          // Create new tasks array with updated task
+          const updatedTasks = [...this.tasks];
+          updatedTasks[index] = updatedTask;
+          
+          // Sort and assign to trigger change detection
+          this.tasks = this.sortTasks(updatedTasks);
+          
+          // Force UI update
+          this.cdr.detectChanges();
         }
       },
       error: (error: Error) => {
         // Show error but don't disrupt UI
         alert(`Failed to complete task: ${error.message}`);
+        this.cdr.detectChanges();
       }
     });
   }
@@ -122,11 +140,45 @@ export class TodayTasksComponent implements OnInit {
       next: () => {
         // Remove task from local array
         this.tasks = this.tasks.filter(t => t._id !== taskId);
+        this.cdr.detectChanges();
       },
       error: (error: Error) => {
         alert(`Failed to delete task: ${error.message}`);
       }
     });
+  }
+
+  /**
+   * Delete all completed tasks
+   * Iterates through completed tasks and deletes them one by one
+   */
+  onClearCompleted(): void {
+    const completedTasks = this.tasks.filter(t => t.status === 'Completed');
+    
+    if (completedTasks.length === 0) return;
+
+    if (!confirm(`Are you sure you want to remove ${completedTasks.length} completed task(s)?`)) {
+      return;
+    }
+
+    const completedIds = completedTasks.map(t => t._id);
+    this.isLoading = true; // Show loading while processing
+    this.cdr.detectChanges();
+
+    this.taskService.deleteMultipleTasks(completedIds)
+      .pipe(finalize(() => {
+        this.isLoading = false;
+        this.cdr.detectChanges();
+      }))
+      .subscribe({
+        next: () => {
+          // Remove all completed tasks from local state
+          this.tasks = this.tasks.filter(t => t.status !== 'Completed');
+        },
+        error: (error: Error) => {
+          alert(`Failed to clear completed tasks: ${error.message}`);
+        }
+      });
   }
 
   // ============ Dashboard Computed Properties ============

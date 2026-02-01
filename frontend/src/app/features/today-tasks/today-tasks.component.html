@@ -37,9 +37,22 @@
       </div>
       
       <!-- Completed Tasks -->
-      <div class="bg-green-50 rounded-lg shadow-sm border border-green-200 p-4 text-center">
+      <div class="bg-green-50 rounded-lg shadow-sm border border-green-200 p-4 text-center relative group">
         <p class="text-3xl sm:text-4xl font-bold text-green-600">{{ completedTasks }}</p>
         <p class="text-xs sm:text-sm text-green-700 mt-1">Completed</p>
+        
+        @if (completedTasks > 0) {
+          <button 
+            (click)="onClearCompleted()"
+            class="absolute top-2 right-2 text-green-600 hover:text-green-800 p-1 rounded-full hover:bg-green-100 transition-colors"
+            title="Clear completed tasks"
+            aria-label="Clear completed tasks"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+            </svg>
+          </button>
+        }
       </div>
       
       <!-- Pending Tasks -->
