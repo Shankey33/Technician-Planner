@@ -21,14 +21,14 @@
 
 import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import type { Task } from '../../../core/models/task.model';
 
 @Component({
   selector: 'app-task-card',
   standalone: true,
-  imports: [CommonModule],
-  templateUrl: './task-card.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush
+  imports: [CommonModule, FormsModule],
+  templateUrl: './task-card.component.html'
 })
 export class TaskCardComponent {
   /** The task to display */
@@ -40,43 +40,76 @@ export class TaskCardComponent {
   /** Emits task ID when delete is requested */
   @Output() onDelete = new EventEmitter<string>();
 
+  /** Visibility of the completion modal */
+  showModal = false;
+  
+  /** Visibility of the delete confirmation modal */
+  showDeleteModal = false;
+  
+  /** Selected completion time string */
+  completionTime = '';
+
   /**
-   * Handle checkbox change - prompt for completion time and emit event
-   * Only triggers when checking (not unchecking)
+   * Handle checkbox click - open modal instead of immediate change
    */
-  handleComplete(): void {
-    // Don't process if already completed
-    if (this.task.status === 'Completed') {
-      return;
-    }
+  onCheckboxClick(event: Event): void {
+    if (this.task.status === 'Completed') return;
+    
+    // Prevent checkbox from changing state immediately
+    event.preventDefault();
+    
+    // Set default time to now
+    const now = new Date();
+    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+    this.completionTime = now.toISOString().slice(0, 16);
+    
+    this.showModal = true;
+  }
 
-    // Prompt user for actual completion time
-    const completionTime = prompt(
-      'Enter completion time (leave empty for current time):',
-      new Date().toISOString().slice(0, 16) // Default to current datetime
-    );
+  /**
+   * Close the completion modal without saving
+   */
+  closeModal(): void {
+    this.showModal = false;
+  }
 
-    if (completionTime !== null) {
-      // User confirmed - emit completion event
-      const completedAt = completionTime 
-        ? new Date(completionTime).toISOString() 
-        : new Date().toISOString();
-      
-      this.onComplete.emit({ 
-        taskId: this.task._id, 
-        completedAt 
-      });
-    }
+  /**
+   * Confirm completion with selected time
+   */
+  confirmComplete(): void {
+    const completedAt = this.completionTime 
+      ? new Date(this.completionTime).toISOString() 
+      : new Date().toISOString();
+    
+    this.onComplete.emit({ 
+      taskId: this.task._id, 
+      completedAt 
+    });
+    
+    this.showModal = false;
   }
 
   /**
    * Handle delete button click
-   * Confirms with user before emitting delete event
+   * Opens confirmation modal
    */
   handleDelete(): void {
-    if (confirm(`Delete task for ${this.task.customerName}?`)) {
-      this.onDelete.emit(this.task._id);
-    }
+    this.showDeleteModal = true;
+  }
+
+  /**
+   * Close delete confirmation modal
+   */
+  closeDeleteModal(): void {
+    this.showDeleteModal = false;
+  }
+
+  /**
+   * Confirm deletion and emit delete event
+   */
+  confirmDelete(): void {
+    this.onDelete.emit(this.task._id);
+    this.showDeleteModal = false;
   }
 
   /**

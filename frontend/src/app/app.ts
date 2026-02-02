@@ -10,7 +10,7 @@
  * - Router outlet for page content
  */
 
-import { Component } from '@angular/core';
+import { Component, HostListener, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
 
@@ -25,21 +25,23 @@ export class App {
   /** App title displayed in navbar */
   readonly title = 'Technician Planner';
 
-  /** Mobile menu open/close state */
-  isMobileMenuOpen = false;
+  /** Whether the user has scrolled down */
+  isScrolled = signal(false);
 
   /**
-   * Toggle mobile menu visibility
+   * Listen to window scroll events
    */
-  toggleMobileMenu(): void {
-    this.isMobileMenuOpen = !this.isMobileMenuOpen;
+  @HostListener('window:scroll', [])
+  onWindowScroll() {
+    const scrollPosition = window.scrollY || document.documentElement.scrollTop || 0;
+    this.isScrolled.set(scrollPosition > 100);
   }
 
   /**
-   * Close mobile menu (called after navigation)
+   * Scroll window to top
    */
-  closeMobileMenu(): void {
-    this.isMobileMenuOpen = false;
+  scrollToTop(): void {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 }
 

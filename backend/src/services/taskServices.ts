@@ -47,7 +47,7 @@ export const updateTaskStatus = async (taskId: string, completedAt: Date): Promi
 export const deleteTask = async (taskId: string): Promise<void> => {
     Task.findById(taskId)
     .then( task => {
-        if(!task || task.status !== "Completed"){
+        if(!task){
             throw new Error("Task not found or not completed");
         }
         return Task.findByIdAndDelete(taskId);

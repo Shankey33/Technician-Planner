@@ -2,7 +2,7 @@
   Root Application Template
   
   Contains:
-  1. Responsive navigation bar with hamburger menu
+  1. Responsive navigation bar
   2. Router outlet for page content
   
   Mobile-first design using Tailwind CSS
@@ -18,82 +18,22 @@
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
             d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
         </svg>
-        <span class="hidden sm:inline">{{ title }}</span>
+        <span>{{ title }}</span>
       </a>
 
-      <!-- Desktop Navigation -->
-      <div class="hidden md:flex items-center gap-1">
+      <!-- Navigation -->
+      <div class="flex items-center gap-1">
         <a 
           routerLink="/home" 
+          (click)="scrollToTop()"
           routerLinkActive="bg-blue-50 text-blue-600"
           [routerLinkActiveOptions]="{ exact: true }"
           class="px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
         >
-          Home
-        </a>
-        <a 
-          routerLink="/add-task" 
-          routerLinkActive="bg-blue-50 text-blue-600"
-          class="px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
-        >
-          Add Task
+          {{ isScrolled() ? 'Scroll to Top' : 'Home' }}
         </a>
       </div>
-
-      <!-- Mobile Menu Button -->
-      <button 
-        (click)="toggleMobileMenu()"
-        class="md:hidden p-2 rounded-lg text-gray-600 hover:bg-gray-100 focus:ring-2 focus:ring-blue-500"
-        [attr.aria-expanded]="isMobileMenuOpen"
-        aria-label="Toggle navigation menu"
-      >
-        @if (!isMobileMenuOpen) {
-          <!-- Hamburger Icon -->
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
-          </svg>
-        } @else {
-          <!-- Close Icon -->
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-          </svg>
-        }
-      </button>
     </div>
-
-    <!-- Mobile Menu (collapsible) -->
-    @if (isMobileMenuOpen) {
-      <div class="md:hidden border-t border-gray-100 py-2">
-        <a 
-          routerLink="/home" 
-          routerLinkActive="bg-blue-50 text-blue-600"
-          [routerLinkActiveOptions]="{ exact: true }"
-          (click)="closeMobileMenu()"
-          class="block px-4 py-3 rounded-lg text-base font-medium text-gray-700 hover:bg-gray-100 transition-colors"
-        >
-          <span class="flex items-center gap-2">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
-            </svg>
-            Home
-          </span>
-        </a>
-        <a 
-          routerLink="/add-task" 
-          routerLinkActive="bg-blue-50 text-blue-600"
-          (click)="closeMobileMenu()"
-          class="block px-4 py-3 rounded-lg text-base font-medium text-gray-700 hover:bg-gray-100 transition-colors"
-        >
-          <span class="flex items-center gap-2">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-            </svg>
-            Add Task
-          </span>
-        </a>
-      </div>
-    }
   </div>
 </nav>
 
